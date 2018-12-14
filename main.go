@@ -1,23 +1,34 @@
 package main
 
 import (
+	"github.com/deissh/HighLoad18/handler"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 )
 
 func main() {
-	zipname := os.Getenv("TESTDATA_PATH")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	// todo
+	err := LoadFromZip(os.Getenv("ZIP_FILE"))
+
+	if err != nil {
+		log.Panic("fault when unzip file")
+	}
+
 	log.Println("create http server")
-	r := gin.New()
+	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
+	g := r.Group("/accounts")
+	{
+		g.GET("/filter", handler.FilterHandler)
+	}
+
 	log.Println("starting server ...")
-	r.Run()
+	_ = r.Run()
 }
