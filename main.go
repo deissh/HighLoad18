@@ -27,6 +27,12 @@ func main() {
 	g := r.Group("/accounts")
 	{
 		g.GET("/filter", handler.FilterHandler)
+		g.GET("/group")
+		g.GET("/:id/recommend")
+		g.GET("/:id/suggest/")
+		g.POST("/:id/")
+		g.POST("/new/")
+		g.POST("/likes/")
 	}
 
 	log.Println("starting server ...")
