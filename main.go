@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/thoas/go-funk"
 	"log"
 	"os"
 )
@@ -51,9 +50,26 @@ func CreateUser(c *gin.Context) {
 }
 
 func FilterUser(c *gin.Context) {
+	var filter Filters
+	err := c.Bind(&filter)
+	if err != nil {
+		c.Status(400)
+		return
+	}
 
-	r := funk.Filter(Acc, func(x Account) bool {
+	c.String(200, "Success")
 
-	})
+	//var filter Filters
+	//err := c.BindQuery(&filter)
+	//if err != nil {
+	//	c.Status(400)
+	//	return
+	//}
+	//c.JSON(200, gin.H{
+	//	"res": filter.sex_eq,
+	//})
+	////r := funk.Filter(Acc, func(x Account) bool {
+	////
+	////})
 
 }
