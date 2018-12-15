@@ -27,14 +27,8 @@ func FilterUser(c *gin.Context) {
 
 	result := funk.Filter(Acc, func(ac Account) bool {
 		f := false
-		if i >= limit {
-			return false
-		} else {
-			i++
-		}
-
 		//SEx
-		if filter.Sex_eq == ac.Sex {
+		if filter.Sex_eq != "" && filter.Sex_eq == ac.Sex {
 			f = true
 		} else {
 			if filter.Sex_eq != "" {
@@ -43,7 +37,7 @@ func FilterUser(c *gin.Context) {
 		}
 
 		//Status
-		if filter.Status_eq == ac.Status {
+		if filter.Status_eq != "" && filter.Status_eq == ac.Status {
 			f = true
 		} else {
 			if filter.Status_eq != "" {
@@ -59,14 +53,14 @@ func FilterUser(c *gin.Context) {
 		}
 
 		// Fname
-		if filter.Fname_eq == ac.Fname {
+		if filter.Fname_eq != "" && filter.Fname_eq == ac.Fname {
 			f = true
 		} else {
 			if filter.Fname_eq != "" {
 				f = false
 			}
 		}
-		if SliceExists(filter.Fname_any, ac.Fname) {
+		if len(filter.Fname_any) > 0 && SliceExists(filter.Fname_any, ac.Fname) {
 			f = true
 		} else {
 			if len(filter.Fname_any) > 0 {
@@ -82,7 +76,7 @@ func FilterUser(c *gin.Context) {
 		}
 
 		//Email
-		if filter.Email_domain == strings.Split(ac.Email, "@")[1] {
+		if filter.Email_domain != "" && filter.Email_domain == strings.Split(ac.Email, "@")[1] {
 			f = true
 		} else {
 			if filter.Email_domain != "" {
@@ -92,7 +86,7 @@ func FilterUser(c *gin.Context) {
 		//todo
 
 		//SName
-		if filter.SName_eq == ac.Sname {
+		if filter.SName_eq != "" && filter.SName_eq == ac.Sname {
 			f = true
 		} else {
 			if filter.SName_eq != "" {
@@ -115,7 +109,7 @@ func FilterUser(c *gin.Context) {
 		}
 
 		//Phone
-		if strings.Contains(ac.Phone, "("+filter.Phone_code+")") {
+		if filter.Phone_code != "" && strings.Contains(ac.Phone, "("+filter.Phone_code+")") {
 			f = true
 		} else {
 			if filter.Phone_code != "" {
@@ -131,7 +125,7 @@ func FilterUser(c *gin.Context) {
 		}
 
 		//Country
-		if filter.Country_eq == ac.Country {
+		if filter.Country_eq != "" && filter.Country_eq == ac.Country {
 			f = true
 		} else {
 			if filter.Country_eq != "" {
@@ -147,14 +141,14 @@ func FilterUser(c *gin.Context) {
 		}
 
 		//City
-		if filter.City_eq == ac.City {
+		if filter.City_eq != "" && filter.City_eq == ac.City {
 			f = true
 		} else {
 			if filter.City_eq != "" {
 				f = false
 			}
 		}
-		if SliceExists(filter.Fname_any, ac.Fname) {
+		if len(filter.Fname_any) > 0 && SliceExists(filter.Fname_any, ac.Fname) {
 			f = true
 		} else {
 			if len(filter.Fname_any) > 0 {
@@ -183,6 +177,14 @@ func FilterUser(c *gin.Context) {
 		} else {
 			if len(filter.Interests_contains) > 0 {
 				f = false
+			}
+		}
+
+		if i >= limit {
+			return false
+		} else {
+			if f {
+				i++
 			}
 		}
 

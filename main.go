@@ -38,9 +38,11 @@ func main() {
 	g := r.Group("/accounts")
 	{
 		g.POST("/:name/", PostHandler)
-
-		g.GET("/filter/", FilterUser)
-		g.GET("/group", Group)
+		g.GET("/:param", GetHandler)
+		g.GET("/:param/", GetHandler)
+		g.GET("/:param/:action/", GetHandler)
+		//g.GET("/filter/", FilterUser)
+		//g.GET("/group", Group)
 		//g.GET("/*id/recommend/", Recommend)
 		//g.GET("/:id/suggest/", Suggest)
 	}
@@ -61,6 +63,29 @@ func PostHandler(c *gin.Context) {
 	}
 
 	UpdateUser(c)
+}
+
+func GetHandler(c *gin.Context) {
+	param := c.Param("param")
+	action := c.Param("action")
+	if param == "filter" {
+		FilterUser(c)
+		return
+	}
+	if param == "group" {
+		Group(c)
+		return
+	}
+	if action == "suggest" {
+		Suggest(c)
+		return
+	}
+	if action == "recommend" {
+		Recommend(c)
+		return
+	}
+
+	c.Status(404)
 }
 
 func CreateUser(c *gin.Context) {
@@ -114,13 +139,5 @@ func Liks(c *gin.Context) {
 }
 
 func Group(c *gin.Context) {
-	c.JSON(200, gin.H{})
-}
-
-func Recommend(c *gin.Context) {
-	c.JSON(200, gin.H{})
-}
-
-func Suggest(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
