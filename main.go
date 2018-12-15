@@ -2,16 +2,17 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/thoas/go-funk"
 	"log"
 	"os"
+	"strconv"
 )
 
 var (
-	Acc map[int]Account
+	Acc []Account
 )
 
 func main() {
-	Acc = make(map[int]Account)
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -30,7 +31,13 @@ func main() {
 	})
 
 	r.POST("/accounts/new/", CreateUser)
+	r.POST("/accounts/:id/")
+	r.POST("/accounts/likes/")
+
 	r.GET("/accounts/filter/", FilterUser)
+	r.GET("/accounts/group", Group)
+	r.GET("/accounts/<id>/recommend", Recommend)
+	r.GET("/accounts/<id>/suggest/", Suggest)
 
 	log.Println("starting server ...")
 	_ = r.Run(os.Getenv("SERVER_PORT"))
@@ -44,7 +51,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	Acc[json.ID] = json
+	Acc = append(Acc, json)
 
 	c.JSON(201, gin.H{})
 }
@@ -57,19 +64,78 @@ func FilterUser(c *gin.Context) {
 		return
 	}
 
-	c.String(200, "Success")
+	i := 0
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", ""))
 
-	//var filter Filters
-	//err := c.BindQuery(&filter)
-	//if err != nil {
-	//	c.Status(400)
-	//	return
-	//}
-	//c.JSON(200, gin.H{
-	//	"res": filter.sex_eq,
-	//})
-	////r := funk.Filter(Acc, func(x Account) bool {
-	////
-	////})
+	if err != nil {
+		c.JSON(200, gin.H{
+			"accounts": Acc,
+		})
+		return
+	}
 
+	result := funk.Filter(Acc, func(ac Account) bool {
+		f := false
+		if i >= limit {
+			return false
+		} else {
+			i++
+		}
+
+		if filter.Sex_eq == ac.Sex {
+			f = true
+		} else {
+			if filter.Sex_eq != "" {
+				f = false
+			}
+		}
+
+		if filter.Status_eq == ac.Status {
+			f = true
+		} else {
+			if filter.Status_eq != "" {
+				f = false
+			}
+		}
+		if filter.Status_neq != ac.Status {
+			f = true
+		} else {
+			if filter.Status_neq != "" {
+				f = false
+			}
+		}
+
+		if filter.Fname_eq == ac.Fname {
+			f = true
+		} else {
+			if filter.Fname_eq != "" {
+				f = false
+			}
+		}
+		if filter.Fname_any == "1" && ac.Fname == "" {
+			f = true
+		} else {
+			if filter.Fname_any != "" {
+				f = false
+			}
+		}
+
+		return f
+	})
+
+	c.JSON(200, gin.H{
+		"accounts": result,
+	})
+}
+
+func Group(c *gin.Context) {
+	c.JSON(200, gin.H{})
+}
+
+func Recommend(c *gin.Context) {
+	c.JSON(200, gin.H{})
+}
+
+func Suggest(c *gin.Context) {
+	c.JSON(200, gin.H{})
 }

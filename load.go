@@ -49,7 +49,7 @@ func LoadFromZip(src string) error {
 					log.Println("file converted to json")
 
 					for _, item := range result.Accounts {
-						Acc[item.ID] = item
+						Acc = append(Acc, item)
 					}
 				}
 			} else {
