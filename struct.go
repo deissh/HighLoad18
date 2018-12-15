@@ -14,26 +14,49 @@ type Likes struct {
 
 type Account struct {
 	ID        int      `json:"id"`
-	Fname     string   `json:"fname" binding:"required"`
+	Fname     string   `json:"fname"`
 	Sname     string   `json:"sname"`
-	Email     string   `json:"email" binding:"required"`
+	Email     string   `json:"email"`
 	Interests []string `json:"interests"`
 	Status    string   `json:"status"`
 	Premium   struct {
 		Start  int `json:"start"`
 		Finish int `json:"finish"`
-	} `json:"premium" binding:"required"`
-	Sex   string `json:"sex" binding:"required"`
+	} `json:"premium"`
+	Sex   string `json:"sex"`
 	Phone string `json:"phone"`
 	Likes []struct {
 		Dt int `json:"dt"`
 		ID int `json:"id"`
-	} `json:"likes" binding:"required"`
-	Birth   int    `json:"birth" binding:"required"`
+	} `json:"likes"`
+	Birth   int    `json:"birth"`
 	City    string `json:"city"`
 	Country string `json:"country"`
-	Joined  int    `json:"joined" binding:"required"`
+	Joined  int    `json:"joined"`
 }
+
+//type Account struct {
+//	ID        int      `json:"id"`
+//	Fname     string   `json:"fname"`
+//	Sname     string   `json:"sname"`
+//	Email     string   `json:"email"`
+//	Interests []string `json:"interests"`
+//	Status    string   `json:"status"`
+//	Premium   struct {
+//		Start  int `json:"start"`
+//		Finish int `json:"finish"`
+//	} `json:"premium" binding:"required"`
+//	Sex   string `json:"sex" binding:"required"`
+//	Phone string `json:"phone"`
+//	Likes []struct {
+//		Dt int `json:"dt"`
+//		ID int `json:"id"`
+//	} `json:"likes" binding:"required"`
+//	Birth   int    `json:"birth" binding:"required"`
+//	City    string `json:"city"`
+//	Country string `json:"country"`
+//	Joined  int    `json:"joined" binding:"required"`
+//}
 
 type Filters struct {
 	Limit  string `from:"limit" json:"limit"`

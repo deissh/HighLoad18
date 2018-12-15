@@ -35,12 +35,15 @@ func main() {
 		})
 	})
 
-	r.POST("/accounts/:name/", PostHandler)
+	g := r.Group("/accounts")
+	{
+		g.POST("/:name/", PostHandler)
 
-	r.GET("/accounts/filter", FilterUser)
-	r.GET("/accounts/group", Group)
-	r.GET("/accounts/<id>/recommend", Recommend)
-	r.GET("/accounts/<id>/suggest", Suggest)
+		g.GET("/filter/", FilterUser)
+		g.GET("/group", Group)
+		//g.GET("/*id/recommend/", Recommend)
+		//g.GET("/:id/suggest/", Suggest)
+	}
 
 	log.Println("starting server ...")
 	_ = r.Run(os.Getenv("SERVER_PORT"))
@@ -96,7 +99,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, gin.H{})
+	c.JSON(202, gin.H{})
 }
 
 func Liks(c *gin.Context) {

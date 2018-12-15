@@ -40,18 +40,20 @@ func LoadFromZip(src string) error {
 			if strings.Contains(f.Name, ".json") {
 				byteValue, err := ioutil.ReadAll(rc)
 				if err == nil {
-					log.Println("converting to json ...")
-					result := AccountsData{}
-					err := json.Unmarshal(byteValue, &result)
-					if err != nil {
-						log.Fatal(err)
-					}
+					go func() {
+						log.Println("converting to json ...")
+						result := AccountsData{}
+						err := json.Unmarshal(byteValue, &result)
+						if err != nil {
+							log.Fatal(err)
+						}
 
-					log.Println("file converted to json")
+						log.Println("file converted to json")
 
-					for _, item := range result.Accounts {
-						Acc = append(Acc, item)
-					}
+						for _, item := range result.Accounts {
+							Acc = append(Acc, item)
+						}
+					}()
 				}
 			} else {
 				log.Println("ignoring file ... " + f.Name)
