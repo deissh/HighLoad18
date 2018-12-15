@@ -13,7 +13,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /server .
 
 FROM scratch
 ENV GIN_MODE=release
+ENV SERVER_PORT=":80"
 ENV ZIP_FILE=/tmp/data/data.zip
 COPY --from=builder /server ./server
 COPY ./temp/data/data.zip /tmp/data/data.zip
+EXPOSE 80
 ENTRYPOINT ["./server"]

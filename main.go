@@ -1,13 +1,19 @@
 package main
 
 import (
-	"github.com/deissh/HighLoad18/handler"
 	"github.com/gin-gonic/gin"
+	"github.com/thoas/go-funk"
 	"log"
 	"os"
 )
 
+var (
+	Acc map[int]Account
+)
+
 func main() {
+	Acc = make(map[int]Account)
+
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	err := LoadFromZip(os.Getenv("ZIP_FILE"))
@@ -24,17 +30,30 @@ func main() {
 		})
 	})
 
-	g := r.Group("/accounts")
-	{
-		g.GET("/filter", handler.FilterHandler)
-		g.GET("/group")
-		g.GET("/:id/recommend")
-		g.GET("/:id/suggest/")
-		g.POST("/:id/")
-		g.POST("/new/")
-		g.POST("/likes/")
-	}
+	r.POST("/accounts/new/", CreateUser)
+	r.GET("/accounts/filter/", FilterUser)
 
 	log.Println("starting server ...")
-	_ = r.Run()
+	_ = r.Run(os.Getenv("SERVER_PORT"))
+}
+
+func CreateUser(c *gin.Context) {
+	var json Account
+	err := c.BindJSON(&json)
+	if err != nil {
+		c.JSON(400, gin.H{})
+		return
+	}
+
+	Acc[json.ID] = json
+
+	c.JSON(201, gin.H{})
+}
+
+func FilterUser(c *gin.Context) {
+
+	r := funk.Filter(Acc, func(x Account) bool {
+
+	})
+
 }

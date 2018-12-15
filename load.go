@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -38,11 +39,21 @@ func LoadFromZip(src string) error {
 			if strings.Contains(f.Name, ".json") {
 				byteValue, err := ioutil.ReadAll(rc)
 				if err == nil {
-					go parseFile(byteValue)
-				} else {
-					log.Println("ignoring file ... " + f.Name)
-					log.Fatal(err)
+					log.Println("converting to json ...")
+					result := AccountsData{}
+					err := json.Unmarshal(byteValue, &result)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					log.Println("file converted to json")
+
+					for _, item := range result.Accounts {
+						Acc[item.ID] = item
+					}
 				}
+			} else {
+				log.Println("ignoring file ... " + f.Name)
 			}
 		}
 	}
