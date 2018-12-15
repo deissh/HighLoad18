@@ -5,6 +5,7 @@ import (
 	"github.com/thoas/go-funk"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -22,6 +23,10 @@ func main() {
 		log.Panic("fault when unzip file")
 	}
 
+	sort.Slice(Acc, func(i, j int) bool {
+		return Acc[i].ID > Acc[j].ID
+	})
+
 	log.Println("create http server")
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
@@ -30,17 +35,29 @@ func main() {
 		})
 	})
 
-	r.POST("/accounts/new/", CreateUser)
-	r.POST("/accounts/:id/")
-	r.POST("/accounts/likes/")
+	r.POST("/accounts/:name/", PostHandler)
 
-	r.GET("/accounts/filter/", FilterUser)
+	r.GET("/accounts/filter", FilterUser)
 	r.GET("/accounts/group", Group)
 	r.GET("/accounts/<id>/recommend", Recommend)
-	r.GET("/accounts/<id>/suggest/", Suggest)
+	r.GET("/accounts/<id>/suggest", Suggest)
 
 	log.Println("starting server ...")
 	_ = r.Run(os.Getenv("SERVER_PORT"))
+}
+
+func PostHandler(c *gin.Context) {
+	param := c.Param("name")
+	if param == "new" {
+		CreateUser(c)
+		return
+	}
+	if param == "likes" {
+		Liks(c)
+		return
+	}
+
+	UpdateUser(c)
 }
 
 func CreateUser(c *gin.Context) {
@@ -51,81 +68,46 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	Acc = append(Acc, json)
+	//Acc = append(Acc, json)
 
 	c.JSON(201, gin.H{})
 }
 
-func FilterUser(c *gin.Context) {
-	var filter Filters
-	err := c.Bind(&filter)
+func UpdateUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("name"))
 	if err != nil {
-		c.Status(400)
+		c.JSON(404, gin.H{})
 		return
 	}
 
-	i := 0
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", ""))
+	r := funk.Find(Acc, func(item Account) bool {
+		return item.ID == id
+	})
 
-	if err != nil {
-		c.JSON(200, gin.H{
-			"accounts": Acc,
-		})
+	if r == nil {
+		c.JSON(404, gin.H{})
 		return
 	}
 
-	result := funk.Filter(Acc, func(ac Account) bool {
-		f := false
-		if i >= limit {
-			return false
-		} else {
-			i++
-		}
+	var json Account
+	err = c.BindJSON(&json)
+	if err != nil {
+		c.JSON(400, gin.H{})
+		return
+	}
 
-		if filter.Sex_eq == ac.Sex {
-			f = true
-		} else {
-			if filter.Sex_eq != "" {
-				f = false
-			}
-		}
+	c.JSON(201, gin.H{})
+}
 
-		if filter.Status_eq == ac.Status {
-			f = true
-		} else {
-			if filter.Status_eq != "" {
-				f = false
-			}
-		}
-		if filter.Status_neq != ac.Status {
-			f = true
-		} else {
-			if filter.Status_neq != "" {
-				f = false
-			}
-		}
+func Liks(c *gin.Context) {
+	var json Likes
+	err := c.BindJSON(&json)
+	if err != nil {
+		c.JSON(400, gin.H{})
+		return
+	}
 
-		if filter.Fname_eq == ac.Fname {
-			f = true
-		} else {
-			if filter.Fname_eq != "" {
-				f = false
-			}
-		}
-		if filter.Fname_any == "1" && ac.Fname == "" {
-			f = true
-		} else {
-			if filter.Fname_any != "" {
-				f = false
-			}
-		}
-
-		return f
-	})
-
-	c.JSON(200, gin.H{
-		"accounts": result,
-	})
+	c.JSON(202, gin.H{})
 }
 
 func Group(c *gin.Context) {
