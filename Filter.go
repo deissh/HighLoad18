@@ -5,6 +5,7 @@ import (
 	"github.com/thoas/go-funk"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func FilterUser(c *gin.Context) {
@@ -32,7 +33,7 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Sex_eq != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -41,14 +42,14 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Status_eq != "" {
-				f = false
+				return false
 			}
 		}
 		if filter.Status_neq != "" && filter.Status_neq != ac.Status {
 			f = true
 		} else {
 			if filter.Status_neq != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -57,21 +58,21 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Fname_eq != "" {
-				f = false
+				return false
 			}
 		}
-		if len(filter.Fname_any) > 0 && SliceExists(filter.Fname_any, ac.Fname) {
+		if len(filter.Fname_any) > 0 && funk.Contains(filter.Fname_any, ac.Fname) {
 			f = true
 		} else {
 			if len(filter.Fname_any) > 0 {
-				f = false
+				return false
 			}
 		}
 		if filter.Fname_null == "1" && ac.Fname == "" {
 			f = true
 		} else {
 			if filter.Fname_null != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -80,7 +81,7 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Email_domain != "" {
-				f = false
+				return false
 			}
 		}
 		//todo
@@ -90,21 +91,21 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.SName_eq != "" {
-				f = false
+				return false
 			}
 		}
 		if filter.SName_starts != "" && strings.Contains(ac.Sname, filter.SName_starts) {
 			f = true
 		} else {
 			if filter.SName_starts != "" {
-				f = false
+				return false
 			}
 		}
 		if filter.SName_null == "1" && ac.Sname == "" {
 			f = true
 		} else {
 			if filter.SName_null != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -113,14 +114,14 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Phone_code != "" {
-				f = false
+				return false
 			}
 		}
 		if filter.Phone_null == "1" && ac.Phone == "" {
 			f = true
 		} else {
 			if filter.Phone_null != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -129,14 +130,14 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.Country_eq != "" {
-				f = false
+				return false
 			}
 		}
 		if filter.Country_null == "1" && ac.Country == "" {
 			f = true
 		} else {
 			if filter.Country_null != "" {
-				f = false
+				return false
 			}
 		}
 
@@ -145,30 +146,30 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if filter.City_eq != "" {
-				f = false
+				return false
 			}
 		}
-		if len(filter.Fname_any) > 0 && SliceExists(filter.Fname_any, ac.Fname) {
+		if len(filter.Fname_any) > 0 && funk.Contains(filter.Fname_any, ac.Fname) {
 			f = true
 		} else {
 			if len(filter.Fname_any) > 0 {
-				f = false
+				return false
 			}
 		}
 		if filter.City_null == "1" && ac.City == "" {
 			f = true
 		} else {
 			if filter.City_null != "" {
-				f = false
+				return false
 			}
 		}
 
 		//Interests
-		if len(filter.Interests_any) > 0 && funk.Contains(filter.Interests_any, ac.Interests) {
+		if len(filter.Interests_any) > 0 && SliceExists(filter.Interests_any, ac.Interests) {
 			f = true
 		} else {
 			if len(filter.Interests_any) > 0 {
-				f = false
+				return false
 			}
 		}
 
@@ -176,12 +177,38 @@ func FilterUser(c *gin.Context) {
 			f = true
 		} else {
 			if len(filter.Interests_contains) > 0 {
-				f = false
+				return false
+			}
+		}
+
+		// Birth
+		if filter.Birth_gt != 0 && filter.Birth_gt >= ac.Birth {
+			f = true
+		} else {
+			if filter.Birth_gt != 0 {
+				return false
+			}
+		}
+		if filter.Birth_lt != 0 && filter.Birth_lt <= ac.Birth {
+			f = true
+		} else {
+			if filter.Birth_lt != 0 {
+				return false
+			}
+		}
+		if filter.Birth_year != "" && filter.Birth_year == strconv.Itoa(time.Unix(int64(ac.Birth), 0).Year()) {
+			f = true
+		} else {
+			if filter.Birth_year != "" {
+				return false
 			}
 		}
 
 		if i >= limit {
-			return false
+			c.JSON(200, gin.H{
+				"accounts": gin.H{},
+			})
+			goto END
 		} else {
 			if f {
 				i++

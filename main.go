@@ -14,7 +14,6 @@ var (
 )
 
 func main() {
-
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	err := LoadFromZip(os.Getenv("ZIP_FILE"))
@@ -136,8 +135,4 @@ func Liks(c *gin.Context) {
 	}
 
 	c.JSON(202, gin.H{})
-}
-
-func Group(c *gin.Context) {
-	c.JSON(200, gin.H{})
 }

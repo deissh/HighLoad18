@@ -63,6 +63,20 @@
   version = "1.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:c228fe5f0ca6f0cb970d8986626c7e4a1c712e1c259bec21635f1506ce61ee15"
+  name = "github.com/proullon/ramsql"
+  packages = [
+    "driver",
+    "engine",
+    "engine/log",
+    "engine/parser",
+    "engine/protocol",
+  ]
+  pruneopts = "UT"
+  revision = "817cee58a24456db9e01091be07f562703408ca3"
+
+[[projects]]
   digest = "1:d1816f8f4877e87cf0a80a25fbc0e7c7a6937bd728ccbf85e2c151c792445a1b"
   name = "github.com/thoas/go-funk"
   packages = ["."]
@@ -77,14 +91,6 @@
   pruneopts = "UT"
   revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
   version = "v1.1.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:87ccd3930fecd2fda7b482c7914f73f89c85c2f1854ef009d187f81362630c69"
-  name = "go4.org"
-  packages = ["reflectutil"]
-  pruneopts = "UT"
-  revision = "00e24f1b25994999399dee600cb8f35a45f519dc"
 
 [[projects]]
   branch = "master"
@@ -114,8 +120,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/bradfitz/slice",
     "github.com/gin-gonic/gin",
+    "github.com/proullon/ramsql/driver",
     "github.com/thoas/go-funk",
   ]
   solver-name = "gps-cdcl"

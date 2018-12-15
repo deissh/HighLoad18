@@ -91,6 +91,18 @@ type Filters struct {
 	Interests_any      []string `form:"interests_any" json:"interests_any"`
 
 	//birth string
+	Birth_lt   int    `from:"birth_lt" json:"birth_lt"`
+	Birth_gt   int    `from:"birth_gt" json:"birth_gt"`
+	Birth_year string `from:"birth_year" json:"birth_year"`
+
 	//likes string
 	//premium string
+}
+
+type GroupKey struct {
+	sex       string
+	status    string
+	interests string
+	country   string
+	city      string
 }
