@@ -19,5 +19,7 @@ func Group(c *gin.Context) {
 	}
 
 	c.Writer.Header().Set("Transfer-Encoding", "identity")
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"groups": []string{},
+	})
 }

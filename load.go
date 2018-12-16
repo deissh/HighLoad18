@@ -49,9 +49,7 @@ func LoadFromZip(src string) error {
 
 					log.Println("file converted to json")
 
-					for _, item := range result.Accounts {
-						Acc = append(Acc, item)
-					}
+					Acc = append(Acc, result.Accounts...)
 				}
 			} else {
 				log.Println("ignoring file ... " + f.Name)
@@ -62,6 +60,11 @@ func LoadFromZip(src string) error {
 	for _, f := range r.File {
 		extractAndWriteFile(f)
 	}
+
+	Indexes = funk.Map(Acc, func(x Account) int {
+		return x.ID
+	})
+	log.Println(Indexes)
 
 	return nil
 }

@@ -7,10 +7,12 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"time"
 )
 
 var (
-	Acc []Account
+	Acc     []Account
+	Indexes interface{}
 )
 
 func main() {
@@ -89,7 +91,11 @@ func GetHandler(c *gin.Context) {
 
 func CreateUser(c *gin.Context) {
 	var json Account
-	err := c.BindJSON(&json)
+	start := time.Now()
+	err := c.ShouldBindJSON(&json)
+
+	log.Println(time.Since(start))
+
 	if err != nil {
 		c.JSON(400, gin.H{})
 		return
@@ -97,7 +103,7 @@ func CreateUser(c *gin.Context) {
 
 	//Acc = append(Acc, json)
 
-	c.JSON(201, gin.H{})
+	c.String(201, "{}")
 }
 
 func UpdateUser(c *gin.Context) {
@@ -107,23 +113,18 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	r := funk.Find(Acc, func(item Account) bool {
-		return item.ID == id
-	})
+	if funk.Contains(Indexes, id) {
+		var json Account
+		err = c.BindJSON(&json)
+		if err != nil {
+			c.JSON(400, gin.H{})
+			return
+		}
 
-	if r == nil {
+		c.JSON(202, gin.H{})
+	} else {
 		c.JSON(404, gin.H{})
-		return
 	}
-
-	var json Account
-	err = c.BindJSON(&json)
-	if err != nil {
-		c.JSON(400, gin.H{})
-		return
-	}
-
-	c.JSON(202, gin.H{})
 }
 
 func Liks(c *gin.Context) {
