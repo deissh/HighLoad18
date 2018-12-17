@@ -1,139 +1,35 @@
 package main
 
 import (
+	"github.com/deissh/HighLoad18/core/account"
+	filtering "github.com/deissh/HighLoad18/core/filters"
+	"github.com/deissh/HighLoad18/core/storage/inmemory"
+	rest "github.com/deissh/HighLoad18/handler"
 	"github.com/gin-gonic/gin"
-	"github.com/thoas/go-funk"
 	"log"
+	"net/http"
 	"os"
-	"sort"
-	"strconv"
-	"time"
 )
 
-var (
-	Acc     []Account
-	Indexes interface{}
-)
+var accounts account.Accounts
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	err := LoadFromZip(os.Getenv("ZIP_FILE"))
-
-	if err != nil {
-		log.Panic("fault when unzip file")
-	}
-
-	sort.Slice(Acc, func(i, j int) bool {
-		return Acc[i].ID > Acc[j].ID
-	})
+	LoadFromZip(os.Getenv("ZIP_FILE"))
 
 	log.Println("create http server")
-	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
 
+	r := gin.New()
 	g := r.Group("/accounts")
 	{
-		g.POST("/:name/", PostHandler)
-		g.GET("/:param", GetHandler)
-		g.GET("/:param/", GetHandler)
-		g.GET("/:param/:action/", GetHandler)
-		//g.GET("/filter/", FilterUser)
-		//g.GET("/group", Group)
-		//g.GET("/*id/recommend/", Recommend)
-		//g.GET("/:id/suggest/", Suggest)
+		g.GET("/filter")
 	}
+
+	repository := inmemory.New(accounts)
+	filteringService := filtering.New(repository)
+	hdl := rest.New(filteringService)
 
 	log.Println("starting server ...")
-	_ = r.Run(os.Getenv("SERVER_PORT"))
-}
-
-func PostHandler(c *gin.Context) {
-	param := c.Param("name")
-	if param == "new" {
-		CreateUser(c)
-		return
-	}
-	if param == "likes" {
-		Liks(c)
-		return
-	}
-
-	UpdateUser(c)
-}
-
-func GetHandler(c *gin.Context) {
-	param := c.Param("param")
-	action := c.Param("action")
-	if param == "filter" {
-		FilterUser(c)
-		return
-	}
-	if param == "group" {
-		Group(c)
-		return
-	}
-	if action == "suggest" {
-		Suggest(c)
-		return
-	}
-	if action == "recommend" {
-		Recommend(c)
-		return
-	}
-
-	c.Status(404)
-}
-
-func CreateUser(c *gin.Context) {
-	var json Account
-	start := time.Now()
-	err := c.ShouldBindJSON(&json)
-
-	log.Println(time.Since(start))
-
-	if err != nil {
-		c.JSON(400, gin.H{})
-		return
-	}
-
-	//Acc = append(Acc, json)
-
-	c.String(201, "{}")
-}
-
-func UpdateUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("name"))
-	if err != nil {
-		c.JSON(404, gin.H{})
-		return
-	}
-
-	if funk.Contains(Indexes, id) {
-		var json Account
-		err = c.BindJSON(&json)
-		if err != nil {
-			c.JSON(400, gin.H{})
-			return
-		}
-
-		c.JSON(202, gin.H{})
-	} else {
-		c.JSON(404, gin.H{})
-	}
-}
-
-func Liks(c *gin.Context) {
-	var json Likes
-	err := c.BindJSON(&json)
-	if err != nil {
-		c.JSON(400, gin.H{})
-		return
-	}
-
-	c.JSON(202, gin.H{})
+	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_PORT"), hdl))
 }

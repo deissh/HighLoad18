@@ -3,16 +3,15 @@ package main
 import (
 	"archive/zip"
 	"encoding/json"
-	"github.com/thoas/go-funk"
-	"io/ioutil"
+	"github.com/deissh/HighLoad18/core/account"
 	"log"
 	"strings"
 )
 
-func LoadFromZip(src string) error {
+func LoadFromZip(src string) {
 	r, err := zip.OpenReader(src)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -38,18 +37,17 @@ func LoadFromZip(src string) error {
 			log.Println("loading file ... " + f.Name)
 
 			if strings.Contains(f.Name, ".json") {
-				byteValue, err := ioutil.ReadAll(rc)
 				if err == nil {
 					log.Println("converting to json ...")
-					result := AccountsData{}
-					err := json.Unmarshal(byteValue, &result)
-					if err != nil {
+
+					var acc account.Accounts
+					if err := json.NewDecoder(rc).Decode(&acc); err != nil {
 						log.Fatal(err)
 					}
 
-					log.Println("file converted to json")
+					accounts.Accounts = append(accounts.Accounts, acc.Accounts...)
 
-					Acc = append(Acc, result.Accounts...)
+					log.Println("file converted to json")
 				}
 			} else {
 				log.Println("ignoring file ... " + f.Name)
@@ -60,21 +58,4 @@ func LoadFromZip(src string) error {
 	for _, f := range r.File {
 		extractAndWriteFile(f)
 	}
-
-	Indexes = funk.Map(Acc, func(x Account) int {
-		return x.ID
-	})
-	log.Println(Indexes)
-
-	return nil
-}
-
-func SliceExists(slice []string, item []string) bool {
-	for _, iter := range slice {
-		if funk.Contains(item, iter) {
-			return true
-		}
-	}
-
-	return false
 }
